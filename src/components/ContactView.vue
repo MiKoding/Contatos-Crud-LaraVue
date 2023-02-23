@@ -102,6 +102,7 @@
         },
         save(){
             if(this.contato.id == ''){
+                this.contato.Foto = "faketeste";
                 this.saveData();
             }else{
                 this.updateData();
