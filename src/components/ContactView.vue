@@ -6,7 +6,9 @@
         <div class="col md-1">
             <form @submit.prevent="save" enctype="multipart/form-data">
                 <div class="mb-2">
-                    <input type="text" v-model="contato.Foto" class="form-control" placeholder="Foto">
+                   
+                    <!--<input type="text" v-model="contato.Foto" class="form-control" placeholder="Foto">-->
+                    <input class="form-control custom-file-imput" @change="handleOnChange" id="Foto" type="file" >
                 </div>
                 
                 <div class="mb-2">
@@ -25,8 +27,8 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/219/219986.png" alt="" class="contact-img">
+        <div v-if="imagePreview" class="col-md-4">
+            <img :src="imagePreview" alt="" class="contact-img">
         </div>
     </div>
   </div>
@@ -38,7 +40,10 @@
             <div class="card my-2 list-group-item-success shadow">
                 <div class="car-body">
                     <div class="row align-items-center">
-                        <div class="col-sm-4">
+                        <div v-if="contato.Foto" class="col-sm-4">
+                            <img :src="contato.Foto" alt="" class="contact-img" style="margin-left: 10px;">
+                        </div>
+                        <div v-else class="col-sm-4">
                             <img src="https://cdn-icons-png.flaticon.com/512/219/219986.png" alt="" class="contact-img" style="margin-left: 10px;">
                         </div>
                         <div class="col-md-6">
@@ -84,7 +89,9 @@
             Email: '',
             Foto: '',
             Numero: ''
-        }
+        },
+        image: null,
+        imagePreview: null
       }
     },
     created(){
@@ -100,9 +107,17 @@
                 }
             );
         },
+        handleOnChange(e){
+            this.image = e.target.files[0];
+
+            let reader = new FileReader();
+            reader.readAsDataURL(this.image);
+            reader.onload= e =>{
+                this.imagePreview = e.target.result;
+            }
+        },
         save(){
             if(this.contato.id == ''){
-                this.contato.Foto = "faketeste";
                 this.saveData();
             }else{
                 this.updateData();
@@ -110,6 +125,8 @@
         
         }, 
         saveData(){
+        const formData = new FormData;
+        this.contato.Foto = formData.append('Foto',this.image);
         axios.post("http://127.0.0.1:8000/api/save", this.contato).then(
             ({data})=>{
                 alert("saved");
